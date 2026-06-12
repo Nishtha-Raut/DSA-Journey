@@ -1,4 +1,5 @@
 """ 
+  leetcode link: https://leetcode.com/problems/kth-ancestor-of-a-tree-node/
   Time Complexity:
   Constructor:  {O}(N log N)) (Precomputes binary steps).
   Query: {O}(log K)) (Loops through bits of K).
