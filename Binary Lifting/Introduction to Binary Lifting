@@ -1,1 +1,42 @@
+(* Think of Binary Lifting like a superhero who can teleport up a giant ladder, 
+but they have a weird rule: they can only jump in steps that are powers of 2 (like 1, 2, 4, 8, 16, 32 steps at a time). *)
 
+(* If you ask them to climb up 1 step, they do it easily. 
+But if you ask them to climb up 13 steps, they don't take 13 painful single steps. 
+They think of 13 in binary: 13 = 8 + 4 + 1.
+So, they take three massive leaps:
+   1. They teleport 8 steps up.From there, they teleport 4 steps up.
+   2. From there, they teleport 1 step up.Boom. 
+   3. They reached the 13th step in just 3 moves instead of 13. 
+That is the core intuition. *)
+
+(* The Trick: How do we know where we land?
+To make these fast jumps, every node on the tree needs to keep a small cheat sheet (a list) of its ancestors.
+But saving every ancestor for every node would take too much memory. 
+So, each node only remembers its neighbors at powers of 2:
+ 1. Who is 1 step above me? 2^{0} 
+ 2. Who is 2 steps above me? 2^{1} 
+ 3. Who is 4 steps above me? 2^{2}
+ 4. Who is 8 steps above me? 2^{3}  *)
+
+ (* The Logic: How do nodes build their cheat sheet?
+ This is where smart logic (Dynamic Programming) comes in. 
+ You don't actually climb the tree to build the cheat sheets. 
+ You use a simple rule: The enemy of my enemy is my friend.
+ Or in this case: 
+ To jump 8 steps, I just jump 4 steps, look at that person's cheat sheet, and jump 4 more steps from there.
+ To find your 2nd ancestor: Go to your 1st ancestor, and ask them who their 1st ancestor is. (\(1 + 1 = 2\))
+ To find your 4th ancestor: Go to your 2nd ancestor, and ask them who their 2nd ancestor is. (\(2 + 2 = 4\))
+ To find your 8th ancestor: Go to your 4th ancestor, and ask them who their 4th ancestor is. (\(4 + 4 = 8\))
+ Because you build this list from the smallest jump (1) to the biggest jump, you can fill out the whole cheat sheet effortlessly! *)
+
+(* Algo: *)
+(* We maintain a 2D table up[N][LOGN] where up[u][j] stores the \(2^{j}\)-th ancestor of node u.
+The DP Recurrence Relation
+To find the \(2^{j}\)-th ancestor, we can jump \(2^{j-1}\) steps up to an intermediate node, and then jump another \(2^{j-1}\) steps up from that node.
+\(\text{up}[u][j]=\text{up}[\text{up}[u][j-1]][j-1]\)
+Steps to InitializeBase Case (j = 0): up[u][0] is the immediate parent of node u (found using a standard DFS/BFS traversal).
+Filling the Table: Iterate j from 1 up to \(\log _{2}N\), and compute the states for all nodes. 
+If a jump goes beyond the root, it resolves to -1 or the root itself.
+Time Complexity: \(O(N \log N)\)
+Space Complexity: \(O(N \log N)\) *)
