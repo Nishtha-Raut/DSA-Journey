@@ -1,3 +1,4 @@
+// leetcode link: https://leetcode.com/problems/maximum-twin-sum-of-a-linked-list/description/?envType=daily-question&envId=2026-06-14
 /**
  * Definition for singly-linked list.
  * public class ListNode {
@@ -57,4 +58,4 @@ class Solution {
       i.In-Place Reversal: Your reverse function modifies the existing node pointers 
         (remain.next = reverse) directly rather than creating new node objects.
       ii.Pointers Only: The algorithm only allocates memory for a few reference variables (slow, fast, twin1, twin2, temp, reverse, remain) and an integer (max).
-      iii.No auxiliary data structures like ArrayList, arrays, or stacks are used.
+      iii.No auxiliary data structures like ArrayList, arrays, or stacks are used. """
