@@ -1,46 +1,76 @@
-# 115. Distinct Subsequences
+# Sum of Pairwise ANDs
 
-[**115. Distinct Subsequences**](https://leetcode.com/problems/distinct-subsequences/)
+[**Sum of Pairwise ANDs**](https://www.geeksforgeeks.org/practice-problems/)
 
-**Difficulty:** Hard
+**Difficulty:** Medium
 
 ## Problem Statement
 
-Given two strings s and t, return *the number of distinct* ***subsequences**** of *s* which equals *t*.
+Given an array `arr[]` of integers, calculate the sum of bitwise AND for all pairs of elements such that the first index is less than the second index.
 
-The test cases are generated so that the answer fits on a 32-bit signed integer.
+In other words, for every pair `(i, j)` where `i < j`, calculate:
 
-## Example 1
+`arr[i] & arr[j]`
 
-**Input:** s = "rabbbit", t = "rabbit"
+and return the sum of all these values.
 
-**Output:** 3
+## Examples
 
-**Explanation:**
+### Example 1
 
-As shown below, there are 3 ways you can generate "rabbit" from s.
+**Input:** `arr = [5, 10, 15]`
 
-rabbbit  
-rabbbit  
-rabbbit
-
-## Example 2
-
-**Input:** s = "babgbag", t = "bag"
-
-**Output:** 5
+**Output:** `15`
 
 **Explanation:**
 
-As shown below, there are 5 ways you can generate "bag" from s.
+Consider all pairs of elements where the first index is less than the second index (`i < j`).
 
-babgbag  
-babgbag  
-babgbag  
-babgbag  
-babgbag
+The valid pairs are:
+
+`(5, 10) -> 5 & 10 = 0`
+
+`(5, 15) -> 5 & 15 = 5`
+
+`(10, 15) -> 10 & 15 = 10`
+
+Now, add all these results:
+
+`0 + 5 + 10 = 15`
+
+So, the total sum of bitwise ANDs for all such pairs is `15`.
+
+### Example 2
+
+**Input:** `arr = [10, 20, 30, 40]`
+
+**Output:** `46`
+
+**Explanation:**
+
+Consider all pairs of elements where the first index is less than the second index (`i < j`).
+
+The valid pairs are:
+
+`(10, 20) -> 10 & 20 = 0`
+
+`(10, 30) -> 10 & 30 = 10`
+
+`(10, 40) -> 10 & 40 = 8`
+
+`(20, 30) -> 20 & 30 = 20`
+
+`(20, 40) -> 20 & 40 = 0`
+
+`(30, 40) -> 30 & 40 = 8`
+
+Now, add all these results:
+
+`0 + 10 + 8 + 20 + 0 + 8 = 46`
+
+So, the total sum of bitwise ANDs for all such pairs is `46`.
 
 ## Constraints
 
-- 1 <= s.length, t.length <= 1000
-- s and t consist of English letters.
+- `1 ≤ arr.size() ≤ 10^5`
+- `1 ≤ arr[i] ≤ 10^8`
