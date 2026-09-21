@@ -25,7 +25,7 @@ long prevcount[] = new long[k];
         for (int x = 0; x < k; x++) {
             result[x] += currcount[x];
             // Assigning current count in prevcount
-            prevcount=currentcount;
+            prevcount=currcount;
         }
     }
 
