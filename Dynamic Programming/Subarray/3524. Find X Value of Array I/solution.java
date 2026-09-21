@@ -24,9 +24,8 @@ long prevcount[] = new long[k];
         // Add current subarrays to the final result.
         for (int x = 0; x < k; x++) {
             result[x] += currcount[x];
-
-            // Keep these counts for future transitions.
-            prevcount[x] += currcount[x];
+            // Assigning current count in prevcount
+            prevcount=currentcount;
         }
     }
 
