@@ -1,80 +1,181 @@
 # Explanation
 
+## Topic
+
+**Dynamic Programming → Subarray DP → Modulo DP**
+
 ## Intuition
 
-Removing a prefix and a suffix while keeping the array non-empty always leaves a **contiguous subarray**.
+Removing a prefix and a suffix while keeping the array non-empty always leaves a **non-empty contiguous subarray**.
 
-So instead of thinking about which prefix and suffix to remove, we can count every possible non-empty contiguous subarray according to the remainder of its product modulo `k`.
+So the problem becomes:
 
-The important observation is:
+> Count every non-empty contiguous subarray according to the remainder of its product when divided by `k`.
 
-If a previous subarray has product remainder `j`, and we append the current element whose remainder is `r`, the new product remainder becomes:
+We do not need to calculate the complete product of a subarray.
 
-`(j * r) % k`
+The important modulo property is:
 
-Since `k <= 5`, we can maintain counts for only `k` possible remainders.
+`(A * B) % k = ((A % k) * (B % k)) % k`
+
+So if we know the remainder of the previous subarray's product and the remainder of the current element, we can calculate the new remainder directly.
+
+Since `k <= 5`, there are only `k` possible remainders: `0` to `k - 1`.
 
 ---
 
-## DP State
+## DP Meaning
 
-`prevcount[r]` stores the number of contiguous subarrays from the already processed part of the array whose product has remainder `r`.
+### `prevcount[r]`
 
-For every new element, create:
+`prevcount[r]` means:
 
-`currcount[r]`
+> **How many contiguous subarrays ending at index `i - 1` have product remainder `r`?**
 
-which stores the number of subarrays **ending at the current element** whose product has remainder `r`.
+This is very important.
+
+It does **not** contain all previous subarrays.
+
+It contains only the subarrays that end at the **immediately previous index**.
+
+Why?
+
+Because when we add `nums[i]`, only a subarray ending at `i - 1` can be extended to form a contiguous subarray ending at `i`.
+
+---
+
+### `currcount[r]`
+
+`currcount[r]` means:
+
+> **How many contiguous subarrays ending at the current index `i` have product remainder `r`?**
+
+So after processing the current element, we do:
+
+`prevcount = currcount`
+
+because in the next iteration, the current index becomes the previous index.
 
 ---
 
 ## Approach
 
-For every `nums[i]`:
+For every element `nums[i]`, perform these steps.
 
-### 1. Find the current remainder
+### 1. Calculate the current remainder
 
-```text
+```text id="7n4k2p"
 currentRemainder = nums[i] % k
 ```
 
-The extra normalization in the code safely handles negative values, although the problem guarantees positive integers.
+Only the remainder is needed because:
+
+`(A * B) % k = ((A % k) * (B % k)) % k`
+
+---
 
 ### 2. Start a new subarray
 
-The single-element subarray `[nums[i]]` is always possible.
+The current element itself forms a valid subarray:
 
-Its product remainder is:
+`[nums[i]]`
 
-`currentRemainder`
-
-So:
-
-`currcount[currentRemainder]++`
-
-### 3. Extend previous subarrays
-
-For every remainder `j` stored in `prevcount`:
-
-`newRemain = (j * currentRemainder) % k`
-
-Every previous subarray with remainder `j` can be extended by the current element.
+Its product is simply `nums[i]`.
 
 Therefore:
 
-`currcount[newRemain] += prevcount[j]`
+```text id="2m8q6x"
+currcount[currentRemainder]++;
+```
 
-### 4. Add current subarrays to the answer
+---
 
-Every subarray ending at the current index represents one valid way of removing a prefix and suffix.
+### 3. Extend previous subarrays
 
-Therefore, add all `currcount` values into `result`.
+Now take every subarray that ended at `i - 1`.
 
-### 5. Keep them for future extensions
+Suppose its product remainder is `j`.
 
-Add `currcount` to `prevcount`.
+When we append `nums[i]`, whose remainder is `currentRemainder`, the new product remainder becomes:
 
-This allows these subarrays to be extended when processing the next element.
+```text id="5v3p9a"
+newRemain = (j * currentRemainder) % k
+```
+
+So:
+
+```text id="1c7r4m"
+currcount[newRemain] += prevcount[j];
+```
+
+This creates all longer contiguous subarrays ending at `i`.
+
+---
+
+## Why Only `prevcount` Is Used?
+
+Consider:
+
+```text
+nums = [1, 2, 3]
+```
+
+When we are processing `3`, the valid contiguous subarrays ending at `3` are:
+
+```text
+[3]
+[2,3]
+[1,2,3]
+```
+
+To create:
+
+* `[2,3]`, we extend `[2]`.
+* `[1,2,3]`, we extend `[1,2]`.
+
+Both `[2]` and `[1,2]` end at the previous index.
+
+But `[1]` does **not** end at the previous index.
+
+If we used all previously found subarrays, we could incorrectly create:
+
+`[1,3]`
+
+which is not contiguous.
+
+Therefore, `prevcount` must contain only subarrays ending at `i - 1`.
+
+---
+
+## 4. Add Current Counts to the Answer
+
+Every non-empty contiguous subarray represents exactly one possible remaining array after removing a prefix and suffix.
+
+Therefore:
+
+```text id="8q1m5z"
+result[x] += currcount[x];
+```
+
+We add all subarrays ending at the current index to the final answer.
+
+---
+
+## 5. Move Current State to Previous State
+
+After processing index `i`:
+
+```text id="3f6k9w"
+prevcount = currcount;
+```
+
+We **replace** `prevcount`; we do not add to it.
+
+Why?
+
+Because in the next iteration, we need only the subarrays ending at the current index `i`.
+
+Those are exactly the subarrays stored in `currcount`.
 
 ---
 
@@ -86,79 +187,183 @@ Consider:
 
 `k = 3`
 
-### Process `1`
+### Step 1: `i = 0`
 
-Remainder = `1`
+Current element:
+
+`1`
+
+Remainder:
+
+`1 % 3 = 1`
 
 New subarray:
 
-`[1] → 1`
+`[1] → remainder 1`
 
 So:
 
-`currcount = [0,1,0]`
+`currcount[1] = 1`
 
-Add to result.
+Then:
+
+`prevcount = currcount`
+
+Now `prevcount` represents subarrays ending at index `0`:
+
+`[1]`
 
 ---
 
-### Process `2`
+### Step 2: `i = 1`
 
-Remainder = `2`
+Current element:
 
-New subarray:
+`2`
+
+Remainder:
+
+`2`
+
+Start a new subarray:
 
 `[2] → 2`
 
-Extend `[1]`:
+Extend previous subarray:
 
-`1 * 2 % 3 = 2`
+`[1]`
 
-So:
+Its remainder is `1`.
 
-* `[2] → 2`
-* `[1,2] → 2`
+Using:
+
+`(1 * 2) % 3 = 2`
+
+we get:
+
+`[1,2] → 2`
 
 Therefore:
 
-`currcount = [0,0,2]`
+```text id="4x9m2c"
+[2]     → 2
+[1,2]   → 2
+```
+
+So:
+
+`currcount[2] = 2`
+
+Then:
+
+`prevcount = currcount`
+
+Now `prevcount` represents only:
+
+```text id="q8v1ka"
+[2]
+[1,2]
+```
+
+Both end at index `1`.
 
 ---
 
-### Process `3`
+### Step 3: `i = 2`
 
-Remainder = `0`
+Current element:
 
-New subarray:
+`3`
+
+Remainder:
+
+`0`
+
+Start:
 
 `[3] → 0`
 
-Extend previous subarrays:
+Now extend previous subarrays:
 
-* `[2]`: `2 * 0 % 3 = 0`
-* `[1,2]`: `2 * 0 % 3 = 0`
-* `[1]`: `1 * 0 % 3 = 0`
+For `[2]`:
 
-Thus all subarrays ending at `3` have remainder `0`.
+`(2 * 0) % 3 = 0`
 
-This demonstrates why keeping counts by remainder is enough.
+So:
+
+`[2,3] → 0`
+
+For `[1,2]`:
+
+`(2 * 0) % 3 = 0`
+
+So:
+
+`[1,2,3] → 0`
+
+Therefore:
+
+```text id="n4s7bx"
+[3]       → 0
+[2,3]     → 0
+[1,2,3]   → 0
+```
+
+All three are counted in `result[0]`.
 
 ---
 
-## Why It Works
+## Why the DP Is Correct
 
-Every valid operation leaves exactly one non-empty contiguous subarray.
+Every non-empty contiguous subarray ending at index `i` has exactly two possibilities:
 
-Every non-empty contiguous subarray is counted exactly once:
+### Case 1: It contains only `nums[i]`
 
-* It is created as a single-element subarray, or
-* It is created by extending an already existing subarray with the current element.
+We create it using:
 
-For each subarray, we only care about its product modulo `k`. When another element is appended, the new remainder can be calculated using:
+`currcount[currentRemainder]++`
 
-`(oldRemainder * currentRemainder) % k`
+### Case 2: It contains more than one element
 
-Therefore, the DP counts every valid remaining subarray under the correct product remainder.
+Then it must have been formed by taking a contiguous subarray ending at `i - 1` and appending `nums[i]`.
+
+We generate these using:
+
+`currcount[newRemain] += prevcount[j]`
+
+Therefore, every contiguous subarray ending at `i` is generated exactly once.
+
+Since we add every `currcount` to `result`, every valid operation is counted exactly once.
+
+---
+
+## Why Modulo DP Works
+
+Suppose a previous subarray has product `P` and:
+
+`P % k = r`
+
+Current element is `x`.
+
+The new product is:
+
+`P * x`
+
+We only need:
+
+`(P * x) % k`
+
+Using the modulo property:
+
+`(P * x) % k = ((P % k) * (x % k)) % k`
+
+Therefore:
+
+`newRemain = (r * (x % k)) % k`
+
+We never need the actual product `P`.
+
+This also prevents the product from becoming extremely large.
 
 ---
 
@@ -166,51 +371,18 @@ Therefore, the DP counts every valid remaining subarray under the correct produc
 
 Let `n = nums.length`.
 
-For every element, we iterate through all `k` possible remainders.
+For every element, we check all `k` possible remainders.
 
 **Time Complexity:** `O(n * k)`
 
 **Space Complexity:** `O(k)`
 
-Since `k <= 5`, this is effectively linear in `n`.
+Since `k <= 5`, the solution is effectively linear in the size of the array.
 
 ---
 
 ## Edge Cases
 
-1. **One element**
+1. **Single element**
 
-   * The single element itself is the only possible remaining subarray.
-
-2. **`k = 1`**
-
-   * Every product has remainder `0`, so every non-empty subarray contributes to `result[0]`.
-
-3. **Elements divisible by `k`**
-
-   * Their remainder is `0`.
-   * Any subarray containing such an element has product remainder `0`.
-
-4. **Repeated values**
-
-   * Each different subarray is counted separately, even if two subarrays have the same product remainder.
-
-5. **Large values**
-
-   * We only use `nums[i] % k`, so we avoid unnecessarily large product values.
-
----
-
-## Interview Takeaway
-
-The key transformation is:
-
-**Removing prefix + suffix → choosing a non-empty contiguous subarray.**
-
-Then use DP based on product remainders:
-
-`newRemainder = (oldRemainder * currentRemainder) % k`
-
-Because `k` is very small, we only need `k` states for every index.
-
-This is a useful pattern for problems involving **subarrays + modulo states**.
+   * Only on
